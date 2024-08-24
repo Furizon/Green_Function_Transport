@@ -34,7 +34,7 @@ if __name__ == '__main__':
     GF.EnergyIntegralDownlimit = -2
     Polarization = []
     SpinFiltering = []
-    couple = np.linspace(0, 1, 10)    # 器件Hubbard电子自洽
+    couple = np.linspace(0, 0.3, 20)    # 器件Hubbard电子自洽
     for i in couple:
         print("Current site energy is {}".format(-i))
         # GF.Hc[0, 0] = -i
@@ -54,18 +54,19 @@ if __name__ == '__main__':
         SpinFiltering.append(np.sum(TUp - TDown) / np.sum(TUp + TDown))
         Polarization.append(np.sum(np.diag(np.abs(GF.ElecDensityUpAvg - GF.ElecDensityDownAvg))))
         
-        fig = plt.figure(figsize=(12, 6), dpi=100)
-        p1 = fig.add_subplot(211)
-        p1.plot(e, TUp, "b")
-        p1.plot(e, TDown, "r", linestyle='--')
-        plt.title('Transmission')
-        # -------------------------计算极化---------------------------#
-        p2 = fig.add_subplot(212)
-        p2.plot(range(GF.ElecDensityUpAvg.shape[0]), np.diag(GF.ElecDensityUpAvg), "b")
-        p2.plot(range(GF.ElecDensityDownAvg.shape[0]), np.diag(GF.ElecDensityDownAvg), "r", linestyle='--')
-        plt.ylim((0.4, 0.6))
-        plt.title('Polarisation')
-        plt.show()
+     #    # -------------------------透射率绘图---------------------------#
+     #    fig = plt.figure(figsize=(12, 6), dpi=100)
+     #    p1 = fig.add_subplot(211)
+     #    p1.plot(e, TUp, "b")
+     #    p1.plot(e, TDown, "r", linestyle='--')
+     #    plt.title('Transmission')
+     #    # -------------------------极化绘图---------------------------#
+     #    p2 = fig.add_subplot(212)
+     #    p2.plot(range(GF.ElecDensityUpAvg.shape[0]), np.diag(GF.ElecDensityUpAvg), "b")
+     #    p2.plot(range(GF.ElecDensityDownAvg.shape[0]), np.diag(GF.ElecDensityDownAvg), "r", linestyle='--')
+     #    plt.ylim((0.4, 0.6))
+     #    plt.title('Polarisation')
+     #    plt.show()
         
     plt.figure(figsize=(8, 6))
     ax = plt.axes(polar=False)
