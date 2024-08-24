@@ -1,14 +1,13 @@
 from GFtransport import *
 from matplotlib import pyplot as plt
 if __name__ == '__main__':
-    # nx = 12 
-    # ny = 5 
-    # t = 1.0
-    # coordinatesX, coordinatesY, H0, Hv, HvHD = haldaneGrapheneHamitonlian(nx, ny, t)
-    
-    # LocalCurrentUpL, LocalCurrentUpR, LocalCurrentDownL, LocalCurrentDownR = calLocalCurrent(0.01, H0, Hv, HvHD)
-    #hubbardMethodCalCurrent('D:\Documents\PythonQT\Hamiltonian\\data.txt')
-    GF = GFtransport('D:\Documents\PythonQT\Hamiltonian\\4C_11C_4C.txt')
+#     GF = GFtransport()
+#     nx = 12 
+#     ny = 5 
+#     t = 1.0
+#     coordinatesX, coordinatesY, H0, Hv, HvHD = haldaneGrapheneHamitonlian(nx, ny, t)
+#     LocalCurrentUpL, LocalCurrentUpR, LocalCurrentDownL, LocalCurrentDownR = GF.calLocalCurrent(0.01, H0, Hv, HvHD)
+    GF = GFtransport('.\Hamiltonian\\4C_11C_4C.txt')
     # 设置一些常数
     # yita
     GF.YITA = 0.01

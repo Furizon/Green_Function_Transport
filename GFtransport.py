@@ -1,7 +1,7 @@
 import numpy as np
 from TightBindingHamiltonian import *
 import time
-from multiprocessing import Pool, Array
+from multiprocessing import Pool
 from tqdm import tqdm
 from GFtransportlib import *
 class GFtransport:
@@ -157,48 +157,6 @@ class GFtransport:
             if not np.isclose(self.Leftu, self.Rightu):
                 deltae = 2 * np.abs(self.Leftu - self.Rightu) / self.EnergyIntegralPoints
                 energy_range = np.linspace(-np.abs(self.Leftu - self.Rightu), np.abs(self.Leftu - self.Rightu), self.EnergyIntegralPoints)
-                # # 使用共享内存进行优化（用于并行计算）
-                # HcUp_shared = Array('d', HcUp.flatten(), lock=False)
-                # HcDown_shared = Array('d', HcDown.flatten(), lock=False)
-                # Hl0Up_shared = Array('d', Hl0Up.flatten(), lock=False)
-                # Hl0Down_shared = Array('d', Hl0Down.flatten(), lock=False)
-                # Hl1_shared = Array('d', Hl1.flatten(), lock=False)
-                # Vlc_shared = Array('d', Vlc.flatten(), lock=False)
-                # Hr0Up_shared = Array('d', Hr0Up.flatten(), lock=False)
-                # Hr0Down_shared = Array('d', Hr0Down.flatten(), lock=False)
-                # Hr1_shared = Array('d', Hr1.flatten(), lock=False)
-                # Vrc_shared = Array('d', Vrc.flatten(), lock=False)
-                # # 并行参数
-                # args_list = [
-                #     (
-                #         e,
-                #         deltae,
-                #         self.Leftu,
-                #         self.Rightu,
-                #         HcUp_shared,
-                #         HcDown_shared,
-                #         Hl0Up_shared,
-                #         Hl0Down_shared,
-                #         Hl1_shared,
-                #         Vlc_shared,
-                #         Hr0Up_shared,
-                #         Hr0Down_shared,
-                #         Hr1_shared,
-                #         Vrc_shared,
-                #         self.YITA,
-                #         self.K0T,
-                #         self.SelfEngConvergeMaxSteps,
-                #         self.SelfEngConvergeLimit
-                #     )
-                #     for e in energy_range
-                # ]
-                
-            
-
-                # with Pool(processes=1) as pool:
-                #     results = pool.map(compute_elec_density, args_list)
-                # ElecDensityUpAvg[:, :, n] += np.sum([res[0] for res in results], axis=0)
-                # ElecDensityDownAvg[:, :, n] += np.sum([res[1] for res in results], axis=0)
                 
                 for e in energy_range:
                     args_list = (e, deltae, self.Leftu, self.Rightu, HcUp, HcDown, Hl0Up, Hl0Down, Hl1, Vlc, Hr0Up, Hr0Down, Hr1, Vrc, self.YITA, self.K0T, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit)
@@ -378,17 +336,17 @@ class GFtransport:
         M = HcUp.shape[0]
         
         # 计算上自旋电子左右电极自能
-        SigmaLUpRetarded = GFtransport.calElectrodeSelfEng(e, HcUp, Hl0Up, Hl1Up, VlcUp, self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
-        SigmaRUpRetarded = GFtransport.calElectrodeSelfEng(e, HcUp, Hr0Up, Hr1Up, VrcUp, self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
-        SigmaLUpAdvanced = GFtransport.calElectrodeSelfEng(e, HcUp, Hl0Up, Hl1Up, VlcUp, -self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
-        SigmaRUpAdvanced = GFtransport.calElectrodeSelfEng(e, HcUp, Hr0Up, Hr1Up, VrcUp, -self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
+        SigmaLUpRetarded = calElectrodeSelfEng(e, HcUp, Hl0Up, Hl1Up, VlcUp, self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
+        SigmaRUpRetarded = calElectrodeSelfEng(e, HcUp, Hr0Up, Hr1Up, VrcUp, self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
+        SigmaLUpAdvanced = calElectrodeSelfEng(e, HcUp, Hl0Up, Hl1Up, VlcUp, -self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
+        SigmaRUpAdvanced = calElectrodeSelfEng(e, HcUp, Hr0Up, Hr1Up, VrcUp, -self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
 
 
         # 计算下自旋电子左右电极自能
-        SigmaLDownRetarded = GFtransport.calElectrodeSelfEng(e, HcDown, Hl0Down, Hl1Down, VlcDown, self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
-        SigmaRDownRetarded = GFtransport.calElectrodeSelfEng(e, HcDown, Hr0Down, Hr1Down, VrcDown, self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
-        SigmaLDownAdvanced = GFtransport.calElectrodeSelfEng(e, HcDown, Hl0Down, Hl1Down, VlcDown, -self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
-        SigmaRDownAdvanced = GFtransport.calElectrodeSelfEng(e, HcDown, Hr0Down, Hr1Down, VrcDown, -self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
+        SigmaLDownRetarded = calElectrodeSelfEng(e, HcDown, Hl0Down, Hl1Down, VlcDown, self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
+        SigmaRDownRetarded = calElectrodeSelfEng(e, HcDown, Hr0Down, Hr1Down, VrcDown, self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
+        SigmaLDownAdvanced = calElectrodeSelfEng(e, HcDown, Hl0Down, Hl1Down, VlcDown, -self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
+        SigmaRDownAdvanced = calElectrodeSelfEng(e, HcDown, Hr0Down, Hr1Down, VrcDown, -self.YITA, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit).squeeze()
 
         # 线宽函数
         
@@ -446,10 +404,10 @@ class GFtransport:
                         f.write(str(LocalCurrent[i, LocalCurrentIndex[i, j]]) + "  ")
                     f.write("\n")
         
-        saveLocalCurrent('D:\Documents\PythonQT\Hamiltonian\lcurrentUp.txt', LocalCurrentUpL)
-        saveLocalCurrent('D:\Documents\PythonQT\Hamiltonian\lcurrentDown.txt', LocalCurrentDownL)
-        saveLocalCurrent('D:\Documents\PythonQT\Hamiltonian\\rcurrentUp.txt', LocalCurrentUpR)
-        saveLocalCurrent('D:\Documents\PythonQT\Hamiltonian\\rcurrentDown.txt', LocalCurrentDownR)
+        saveLocalCurrent('.\LocalCurrent\lcurrentUp.txt', LocalCurrentUpL)
+        saveLocalCurrent('.\LocalCurrent\lcurrentDown.txt', LocalCurrentDownL)
+        saveLocalCurrent('.\LocalCurrent\\rcurrentUp.txt', LocalCurrentUpR)
+        saveLocalCurrent('.\LocalCurrent\\rcurrentDown.txt', LocalCurrentDownR)
 
         return LocalCurrentUpL, LocalCurrentUpR, LocalCurrentDownL, LocalCurrentDownR
 

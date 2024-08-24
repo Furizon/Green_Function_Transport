@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 ###################添加缓冲层####################
 # ------------------------参数--------------------------#
@@ -615,7 +614,7 @@ if __name__ == '__main__':
 
 
     coordinatesX, coordinatesY, H0, Hv, HvHD = haldaneGrapheneHamitonlian(nx, ny, t)
-    saveAtomCoordinates(coordinatesX[40:200], coordinatesY[40:200], np.zeros(160), 'D:\Documents\PythonQT\Hamiltonian\position.txt')
+    saveAtomCoordinates(coordinatesX[40:200], coordinatesY[40:200], np.zeros(160), '.\Hamiltonian\position.txt')
     
-    SaveHamiltonianTxt('D:\Documents\PythonQT\Hamiltonian\\4C_10C_4C.txt', *GenerateCACHamiltonianMatrix(), "CAC")
+    SaveHamiltonianTxt('.\Hamiltonian\\4C_10C_4C.txt', *GenerateCACHamiltonianMatrix(), "CAC")
     
