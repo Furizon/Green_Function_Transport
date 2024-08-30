@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # Hubbard自洽收敛精度
     GF.HubbardConvergeLimit = 1e-8
     # Hubbard自洽最大步数
-    GF.HubbardMaxSteps = 2000
+    GF.HubbardMaxSteps = 500
     # 电极自能计算收敛精度
     GF.SelfEngConvergeLimit = 1e-8
     # 电极自能计算最大步数
@@ -34,11 +34,12 @@ if __name__ == '__main__':
     GF.EnergyIntegralDownlimit = -2
     Polarization = []
     SpinFiltering = []
-    couple = np.linspace(0, 0.3, 20)    # 器件Hubbard电子自洽
+    Transmission = []
+    couple = np.linspace(0, 0.3, 31)    # 器件Hubbard电子自洽
     for i in couple:
         print("Current site energy is {}".format(-i))
-        # GF.Hc[0, 0] = -i
-        # GF.Hc[-1, -1] = -i
+     #    GF.Hc[0, 0] = -i
+     #    GF.Hc[-1, -1] = -i
      #    GF.Vlc[-1, 0] = -i
      #    GF.Vrc[0, -1] = -i
         GF.Leftu = i
@@ -53,6 +54,8 @@ if __name__ == '__main__':
         TDown = np.array(TDown)
         SpinFiltering.append(np.sum(TUp - TDown) / np.sum(TUp + TDown))
         Polarization.append(np.sum(np.diag(np.abs(GF.ElecDensityUpAvg - GF.ElecDensityDownAvg))))
+        Transmission.append(TUp)
+        print(SpinFiltering[-1], Polarization[-1], Transmission[-1])
         
      #    # -------------------------透射率绘图---------------------------#
      #    fig = plt.figure(figsize=(12, 6), dpi=100)
@@ -70,17 +73,19 @@ if __name__ == '__main__':
         
     plt.figure(figsize=(8, 6))
     ax = plt.axes(polar=False)
-    plt.plot(couple, SpinFiltering, color='black', marker='+'
-         ,markeredgecolor='black',markersize='15',markeredgewidth=2)
+    plt.plot(couple, Transmission, color='black', marker='+'
+         ,markeredgecolor='black',markersize='10',markeredgewidth=1)
     plt.grid(True, linestyle='--', alpha=0.7)
 
     plt.xlabel("Bias(V)", fontsize=26)
-    ax.set_ylabel('Spin Filtering Ratio', labelpad=15, rotation=90, fontsize=26)
+    ax.set_ylabel('Transmission', labelpad=15, rotation=90, fontsize=26)
     ax.spines['top'].set_color('black')    # 设置顶部边框线颜色为灰色
     ax.spines['right'].set_color('black')  # 设置右侧边框线颜色为灰色
     ax.spines['bottom'].set_color('black') # 设置底部边框线颜色为黑色
     ax.spines['left'].set_color('black')  # 设置左侧边框线颜色为黑色
-    ax.tick_params(which='both', direction='in', length=4, width=1, colors='black')
+    ax.tick_params(which='both', direction='in', length=4, width=1, colors='black', labelsize=22)
+    ax.set_yticks(np.linspace(0, 0.8, 5))
+    ax.set_ylim(-0.04, 0.88)
     
     ax2 = ax.twinx()
     ax2.set_ylabel('Spin Polarization', labelpad=15, rotation=90, fontsize=26, color='#c94737', )
@@ -88,6 +93,8 @@ if __name__ == '__main__':
     ax2.plot(couple, Polarization, color='#c94737', marker='+'
          ,markeredgecolor='#c94737',markersize='10',markeredgewidth=1)
     ax2.tick_params(length=4, width=1, colors='#c94737', labelsize=22)
+    ax2.set_yticks(np.linspace(0, 0.8, 5))
+    ax2.set_ylim(-0.04, 0.88)
     # ax2.set_ylim(-0.0005, 0.015)
     # plt.xticks([0, 0.4, 0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.0], fontsize=22)
     # plt.yticks([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=22)
