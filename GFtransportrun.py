@@ -40,26 +40,26 @@ if __name__ == '__main__':
      SpinFiltering = []
      Transmission = []
      vars = np.linspace(0, 0.3, 31)    # 器件Hubbard电子自洽
-     for i in vars:
-          print("Current site energy is {}".format(-i))
-          # GF.Hc[0, 0] = -i
-          # GF.Hc[-1, -1] = -i
-          # GF.Vlc[-1, 0] = -i
-          # GF.Vrc[0, -1] = -i
-          GF.Leftu = i
-          GF.hubbardSelfConsist()
-          # -------------------------计算透射率---------------------------#
+     # for i in vars:
+     #      print("Current site energy is {}".format(-i))
+     #      # GF.Hc[0, 0] = -i
+     #      # GF.Hc[-1, -1] = -i
+     #      # GF.Vlc[-1, 0] = -i
+     #      # GF.Vrc[0, -1] = -i
+     #      GF.Leftu = i
+     #      GF.hubbardSelfConsist()
+     #      # -------------------------计算透射率---------------------------#
 
-          # 计算透射率
-          Steps = 1
-          e = np.linspace(0, 0, Steps)
-          TUp, TDown = GF.calTransmission(e)
-          TUp = np.array(TUp)
-          TDown = np.array(TDown)
-          SpinFiltering.append(np.sum(TUp - TDown) / np.sum(TUp + TDown))
-          Polarization.append(np.sum(np.diag(np.abs(GF.ElecDensityUpAvg - GF.ElecDensityDownAvg))))
-          Transmission.append(TUp + TDown)
-          print(SpinFiltering[-1], Polarization[-1], Transmission[-1][0])
+     #      # 计算透射率
+     #      Steps = 1
+     #      e = np.linspace(0, 0, Steps)
+     #      TUp, TDown = GF.calTransmission(e)
+     #      TUp = np.array(TUp)
+     #      TDown = np.array(TDown)
+     #      SpinFiltering.append(np.sum(TUp - TDown) / np.sum(TUp + TDown))
+     #      Polarization.append(np.sum(np.diag(np.abs(GF.ElecDensityUpAvg - GF.ElecDensityDownAvg))))
+     #      Transmission.append(TUp + TDown)
+     #      print(SpinFiltering[-1], Polarization[-1], Transmission[-1][0])
 
           # # -------------------------透射率绘图---------------------------#
           # fig = plt.figure(figsize=(12, 6), dpi=100)
@@ -74,12 +74,12 @@ if __name__ == '__main__':
           # plt.ylim((0.4, 0.6))
           # plt.title('Polarisation')
           # plt.show()
-     np.save("data.npy", {"Transmission":Transmission, "SpinFiltering":SpinFiltering, "Polarization":Polarization})
+     # np.save("data.npy", {"Transmission":Transmission, "SpinFiltering":SpinFiltering, "Polarization":Polarization})
      
-     # data = np.load("./data.npy", allow_pickle=True)
-     # Transmission = data.item()["Transmission"]
-     # SpinFiltering = data.item()["SpinFiltering"]
-     # Polarization = data.item()["Polarization"]
+     data = np.load("./data.npy", allow_pickle=True)
+     Transmission = data.item()["Transmission"]
+     SpinFiltering = data.item()["SpinFiltering"]
+     Polarization = data.item()["Polarization"]
      # 创建主图和子图
      fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), gridspec_kw={'height_ratios': [3, 1]})
 
@@ -92,8 +92,8 @@ if __name__ == '__main__':
      ax1.spines['bottom'].set_color('black')
      ax1.spines['left'].set_color('black')
      ax1.tick_params(which='both', direction='in', length=4, width=1, colors='black', labelsize=22)
-     ax1.set_yticks(np.linspace(0, 0.2, 6))
-     ax1.set_ylim(-0.01, 0.22)
+     ax1.set_yticks(np.linspace(0, 0.10, 6))
+     ax1.set_ylim(-0.005, 0.11)
 
      # 隐藏第一个图的x轴刻度数字
      ax1.tick_params(axis='x', labelbottom=False)
@@ -111,8 +111,8 @@ if __name__ == '__main__':
      ax2.set_ylabel(r'$T_{total}$', fontsize=26, labelpad=23)  # 增加labelpad确保标题显示全
      ax2.tick_params(which='both', direction='in', length=4, width=1, colors='black', labelsize=22)
      ax2.grid(True, linestyle='--', alpha=0.7)
-     ax2.set_yticks(np.linspace(0, 0.8, 3))
-     ax2.set_ylim(-0.04, 0.88)
+     ax2.set_yticks(np.linspace(0, 1.6, 3))
+     ax2.set_ylim(-0.08, 1.76)
 
      # 在第二幅图下方添加x轴标题
      ax2.set_xlabel("Bias (V)", fontsize=26)
