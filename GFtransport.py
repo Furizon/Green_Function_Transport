@@ -157,12 +157,10 @@ class GFtransport:
             if not np.isclose(self.Leftu, self.Rightu):
                 deltae = 2 * np.abs(self.Leftu - self.Rightu) / self.EnergyIntegralPoints
                 energy_range = np.linspace(-np.abs(self.Leftu - self.Rightu), np.abs(self.Leftu - self.Rightu), self.EnergyIntegralPoints)
-                
-                for e in energy_range:
-                    args_list = (e, deltae, self.Leftu, self.Rightu, HcUp, HcDown, Hl0Up, Hl0Down, Hl1, Vlc, Hr0Up, Hr0Down, Hr1, Vrc, self.YITA, self.K0T, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit)
-                    ElecDensityUp, ElecDensityDown = compute_elec_density(args_list)
-                    ElecDensityUpAvg[:, :, n] += ElecDensityUp
-                    ElecDensityDownAvg[:, :, n] += ElecDensityDown
+                args_list = (energy_range, deltae, self.Leftu, self.Rightu, HcUp, HcDown, Hl0Up, Hl0Down, Hl1, Vlc, Hr0Up, Hr0Down, Hr1, Vrc, self.YITA, self.K0T, self.SelfEngConvergeMaxSteps, self.SelfEngConvergeLimit)
+                ElecDensityUp, ElecDensityDown = compute_elec_density(args_list)
+                ElecDensityUpAvg[:, :, n] += ElecDensityUp
+                ElecDensityDownAvg[:, :, n] += ElecDensityDown
             # 记录中心器件和电极电子密度
             ElecDensityUpAvg[:, :, n] = np.diag(np.diag(ElecDensityUpAvg[:, :, n]))
             ElecDensityDownAvg[:, :, n] = np.diag(np.diag(ElecDensityDownAvg[:, :, n]))

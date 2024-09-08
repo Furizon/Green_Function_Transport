@@ -25,7 +25,7 @@ if __name__ == '__main__':
      # Hubbard自洽收敛精度
      GF.HubbardConvergeLimit = 1e-8
      # Hubbard自洽最大步数
-     GF.HubbardMaxSteps = 2
+     GF.HubbardMaxSteps = 500
      # 电极自能计算收敛精度
      GF.SelfEngConvergeLimit = 1e-8
      # 电极自能计算最大步数
@@ -39,27 +39,27 @@ if __name__ == '__main__':
      Polarization = []
      SpinFiltering = []
      Transmission = []
-     couple = np.linspace(0, 0.3, 5)    # 器件Hubbard电子自洽
-     # for i in couple:
-     #      print("Current site energy is {}".format(-i))
-     #      # GF.Hc[0, 0] = -i
-     #      # GF.Hc[-1, -1] = -i
-     #      # GF.Vlc[-1, 0] = -i
-     #      # GF.Vrc[0, -1] = -i
-     #      GF.Leftu = i
-     #      GF.hubbardSelfConsist()
-     #      # -------------------------计算透射率---------------------------#
+     vars = np.linspace(0, 0.3, 31)    # 器件Hubbard电子自洽
+     for i in vars:
+          print("Current site energy is {}".format(-i))
+          # GF.Hc[0, 0] = -i
+          # GF.Hc[-1, -1] = -i
+          # GF.Vlc[-1, 0] = -i
+          # GF.Vrc[0, -1] = -i
+          GF.Leftu = i
+          GF.hubbardSelfConsist()
+          # -------------------------计算透射率---------------------------#
 
-     #      # 计算透射率
-     #      Steps = 1
-     #      e = np.linspace(0, 0, Steps)
-     #      TUp, TDown = GF.calTransmission(e)
-     #      TUp = np.array(TUp)
-     #      TDown = np.array(TDown)
-     #      SpinFiltering.append(np.sum(TUp - TDown) / np.sum(TUp + TDown))
-     #      Polarization.append(np.sum(np.diag(np.abs(GF.ElecDensityUpAvg - GF.ElecDensityDownAvg))))
-     #      Transmission.append(TUp + TDown)
-     #      print(SpinFiltering[-1], Polarization[-1], Transmission[-1])
+          # 计算透射率
+          Steps = 1
+          e = np.linspace(0, 0, Steps)
+          TUp, TDown = GF.calTransmission(e)
+          TUp = np.array(TUp)
+          TDown = np.array(TDown)
+          SpinFiltering.append(np.sum(TUp - TDown) / np.sum(TUp + TDown))
+          Polarization.append(np.sum(np.diag(np.abs(GF.ElecDensityUpAvg - GF.ElecDensityDownAvg))))
+          Transmission.append(TUp + TDown)
+          print(SpinFiltering[-1], Polarization[-1], Transmission[-1][0])
 
           # # -------------------------透射率绘图---------------------------#
           # fig = plt.figure(figsize=(12, 6), dpi=100)
@@ -74,16 +74,17 @@ if __name__ == '__main__':
           # plt.ylim((0.4, 0.6))
           # plt.title('Polarisation')
           # plt.show()
-     # np.save("data.npy", {"Transmission":Transmission, "SpinFiltering":SpinFiltering, "Polarization":Polarization})
-     data = np.load("data.npy")
-     Transmission = data["Transmission"]
-     SpinFiltering = data["SpinFiltering"]
-     Polarization = data["Polarization"]
+     np.save("data.npy", {"Transmission":Transmission, "SpinFiltering":SpinFiltering, "Polarization":Polarization})
+     
+     # data = np.load("./data.npy", allow_pickle=True)
+     # Transmission = data.item()["Transmission"]
+     # SpinFiltering = data.item()["SpinFiltering"]
+     # Polarization = data.item()["Polarization"]
      # 创建主图和子图
      fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8), gridspec_kw={'height_ratios': [3, 1]})
 
      # 第一个子图 - Spin Filtering Ratio 和 Spin Polarization
-     ax1.plot(couple, SpinFiltering, color='black', marker='+', markersize=10, markeredgewidth=1, label='Spin Filtering')
+     ax1.plot(vars, SpinFiltering, color='black', marker='+', markersize=10, markeredgewidth=1, label='Spin Filtering')
      ax1.set_ylabel('Spin Filtering Ratio', fontsize=26, labelpad=10)  # 增加labelpad确保标题显示全
      ax1.grid(True, linestyle='--', alpha=0.7)
      ax1.spines['top'].set_color('black')
@@ -99,14 +100,14 @@ if __name__ == '__main__':
 
      # twin axes for Spin Polarization
      ax3 = ax1.twinx()
-     ax3.plot(couple, Polarization, color='#c94737', marker='+', markersize=10, markeredgewidth=1, label='Spin Polarization')
+     ax3.plot(vars, Polarization, color='#c94737', marker='+', markersize=10, markeredgewidth=1, label='Spin Polarization')
      ax3.set_ylabel('Spin Polarization', fontsize=26, color='#c94737', labelpad=10)  # 增加labelpad确保标题显示全
      ax3.tick_params(axis='y', colors='#c94737', length=4, width=1, labelsize=22)
      ax3.set_yticks(np.linspace(0, 1.5, 6))
      ax3.set_ylim(-0.075, 1.65)
 
      # 第二个子图 - Transmission
-     ax2.plot(couple, Transmission, color='black', marker='+', markersize=10, markeredgewidth=1, label='Transmission')
+     ax2.plot(vars, Transmission, color='black', marker='+', markersize=10, markeredgewidth=1, label='Transmission')
      ax2.set_ylabel(r'$T_{total}$', fontsize=26, labelpad=23)  # 增加labelpad确保标题显示全
      ax2.tick_params(which='both', direction='in', length=4, width=1, colors='black', labelsize=22)
      ax2.grid(True, linestyle='--', alpha=0.7)

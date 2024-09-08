@@ -1,5 +1,6 @@
 import numpy as np
-from numba import njit
+from numba import njit, prange, set_num_threads
+set_num_threads(4)
 ###################迭代求计算电极自能####################
 # ------------------------参数--------------------------#
 # ee 能量, 可以为数组
@@ -11,7 +12,7 @@ from numba import njit
 # ------------------------返回--------------------------#
 # SigmaL 左电极自能
 # SigmaR 右电极自能
-@njit
+@njit(fastmath = True, nogil = True)
 def calElectrodeSelfEng(e, Hc, H0, H1, Vxc, yita, SelfEngConvergeMaxSteps, SelfEngConvergeLimit):
     # 电极单元原子数
     N = H0.shape[0]
@@ -74,21 +75,21 @@ def calElectrodeSelfEng(e, Hc, H0, H1, Vxc, yita, SelfEngConvergeMaxSteps, SelfE
 # Vrc右电极和器件互相关
 # ------------------------返回--------------------------#
 # 左右电极自能之和
-@njit
+@njit(fastmath = True, nogil = True)
 def calElectrodeSelfEngTotal(e, Hc, Hl0, Hr0, Hl1, Hr1, Vlc, Vrc, yita, SelfEngConvergeMaxSteps, SelfEngConvergeLimit):
     SigmaL = calElectrodeSelfEng(e, Hc, Hl0, Hl1, Vlc, yita, SelfEngConvergeMaxSteps, SelfEngConvergeLimit)
     SigmaR = calElectrodeSelfEng(e, Hc, Hr0, Hr1, Vrc, yita, SelfEngConvergeMaxSteps, SelfEngConvergeLimit)
     return SigmaL + SigmaR
 
-# 计算能量积分
-@njit
-def compute_elec_density(args):
-    def fermi(e, u, K0T):
-        return 1 / (1 + np.exp((e - u) / K0T))
+@njit(fastmath = True, nogil = True)
+def fermi(e, u, K0T):
+    return 1 / (1 + np.exp((e - u) / K0T))
 
-    e, deltae, Leftu, Rightu, HcUp, HcDown, Hl0Up, Hl0Down, Hl1, Vlc, Hr0Up, Hr0Down, Hr1, Vrc, YITA, K0T, SelfEngConvergeMaxSteps, SelfEngConvergeLimit = args
+@njit(fastmath = True, nogil = True)
+def compute_elec_density_pint(args, e):
+    energy_range, deltae, Leftu, Rightu, HcUp, HcDown, Hl0Up, Hl0Down, Hl1, Vlc, Hr0Up, Hr0Down, Hr1, Vrc, YITA, K0T, SelfEngConvergeMaxSteps, SelfEngConvergeLimit = args
     M = HcUp.shape[0]
-    
+
     SigmaLUpRetarded = calElectrodeSelfEng(e, HcUp, Hl0Up, Hl1, Vlc, YITA, SelfEngConvergeMaxSteps, SelfEngConvergeLimit)
     SigmaRUpRetarded = calElectrodeSelfEng(e, HcUp, Hr0Up, Hr1, Vrc, YITA, SelfEngConvergeMaxSteps, SelfEngConvergeLimit)
     SigmaLUpAdvanced = calElectrodeSelfEng(e, HcUp, Hl0Up, Hl1, Vlc, -YITA, SelfEngConvergeMaxSteps, SelfEngConvergeLimit)
@@ -115,5 +116,24 @@ def compute_elec_density(args):
     else:
         ElecDensityUp = (np.dot(np.dot(GRcUp, GammaLUp), GAcUp) * (fermi(e, Leftu, K0T) - fermi(e, Rightu, K0T)) * deltae).real / (2 * np.pi)
         ElecDensityDown = (np.dot(np.dot(GRcDown, GammaLDown), GAcDown) * (fermi(e, Leftu, K0T) - fermi(e, Rightu, K0T)) * deltae).real / (2 * np.pi)
+    return ElecDensityUp, ElecDensityDown
+
+# 计算能量积分
+@njit(fastmath=True, parallel=True, nogil=True, cache = True)
+def compute_elec_density(args):
+    energy_range, deltae, Leftu, Rightu, HcUp, HcDown, Hl0Up, Hl0Down, Hl1, Vlc, Hr0Up, Hr0Down, Hr1, Vrc, YITA, K0T, SelfEngConvergeMaxSteps, SelfEngConvergeLimit = args
+    M = HcUp.shape[0]
+    
+    # 创建局部结果存储
+    ElecDensityUp_local = np.zeros((M, M, len(energy_range)))
+    ElecDensityDown_local = np.zeros((M, M, len(energy_range)))
+
+    # 使用 prange 并行处理能量积分
+    for i in prange(len(energy_range)):
+        e = energy_range[i]
+        ElecDensityUp_local[:, :, i], ElecDensityDown_local[:, :, i] = compute_elec_density_pint(args, e)
+    # 累加结果
+    ElecDensityUp = np.sum(ElecDensityUp_local, axis=2)
+    ElecDensityDown = np.sum(ElecDensityDown_local, axis=2)
 
     return ElecDensityUp, ElecDensityDown
